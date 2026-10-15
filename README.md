@@ -6,21 +6,20 @@ Supervised Learning, Project 4 | Author: Harshal Vora ([HarshalVora86](https://g
 
 | Deliverable | Link |
 |---|---|
-| 🚀 Live Streamlit App | `PASTE_STREAMLIT_URL_HERE` |
-| 🎥 Video Explanation | `PASTE_GOOGLE_DRIVE_OR_YOUTUBE_UNLISTED_LINK_HERE` |
+| 🚀 Live Streamlit App | [messageintelligencesystemsl.streamlit.app](https://messageintelligencesystemsl.streamlit.app/) |
+| 🎥 Video Explanation | [Watch the project overview](https://drive.google.com/file/d/109jQe46a_nf6DF0fp1fADjR6mhRsRRAL/view?usp=sharing) |
 | 📓 Notebook | [`Notebook/Message_Intelligence_System.ipynb`](Notebook/Message_Intelligence_System.ipynb) |
-|
 
 ---
 
 ## 📌 Project Overview
 
-A communication security company wants to classify incoming messages automatically as:
+The goal is to classify incoming messages as:
 
 - `0` → Legitimate message
 - `1` → Spam message
 
-This project builds and compares three families of classifiers and explains their behaviour with probability concepts (conditional probability and Bayes' theorem):
+Three families of classifiers are built and compared, and their behaviour is explained with conditional probability and Bayes' theorem:
 
 | Family | Model |
 |---|---|
@@ -34,31 +33,37 @@ This project builds and compares three families of classifiers and explains thei
 
 `Dataset/Message_Intelligence_Dataset_5200.xlsx`: 5,200 messages, 16 columns, no duplicates.
 
-- **Class balance:** 4,227 legitimate (81.3%) and 973 spam (18.7%)
+- **Class balance:** 4,227 legitimate and 973 spam (18.7%)
 - **Missing values:** `sender_activity_score` (106), `sender_account_age_days` (113), `messages_sent_last_24h` (162), filled with the median
 
 | Feature | Description |
 |---|---|
 | `message_length`, `word_count` | Size of the message |
 | `num_urls`, `num_digits`, `num_special_chars` | Content signals |
-| `spam_keyword_score`, `legit_keyword_score` | Keyword frequency scores |
+| `spam_keyword_score`, `legit_keyword_score` | Keyword scores |
 | `sender_activity_score`, `sender_account_age_days`, `messages_sent_last_24h` | Sender behaviour |
 | `hour_of_day`, `day_of_week` | Time features |
 | `spam_label` | **Target** (0 = Legitimate, 1 = Spam) |
 
 `message_id`, `message_text` and `timestamp` are dropped before modelling.
 
+### Correlation matrix
+
+![Correlation Matrix](Screenshots/correlation_matrix.png)
+
 ---
 
-## 🔬 Methodology
+## 🔬 What the Notebook Covers
 
-1. **Theory (Part A):** conditional probability, Bayes' theorem, Naive Bayes assumptions, KNN and SVM working principles, distance vs probabilistic vs margin-based classifiers.
-2. **Preparation (Part B):** features and target identified, median imputation, standard scaling, 80/20 train-test split (`random_state=50`).
-3. **KNN (Part C):** K from 1 to 19, three distance metrics (Euclidean, Manhattan, Minkowski), misclassification analysis.
-4. **SVM (Part D):** linear, polynomial and RBF kernels, support-vector analysis, comparison with KNN.
-5. **Naive Bayes (Part E):** Gaussian Naive Bayes, manual Bayes calculation for sample messages, comparison of theory with model output.
-6. **Evaluation (Part F):** accuracy, precision, recall, F1, confusion matrices and 5-fold stratified cross-validation.
-7. **Report (Part G):** strengths and weaknesses, impact of Naive Bayes assumptions, interpretability trade-offs, business recommendation.
+| Part | Work done |
+|---|---|
+| **A. Theory** | Conditional probability, Bayes' theorem, Naive Bayes assumptions, KNN and SVM working principles, distance-based vs probabilistic vs margin-based classifiers |
+| **B. Data preparation** | Features and target identified, median imputation, standard scaling, 80/20 train-test split (`random_state=50`) |
+| **C. KNN** | K = 1 to 19, three distance metrics (Euclidean, Manhattan, Minkowski), misclassification check |
+| **D. SVM** | Linear, polynomial and RBF kernels, support-vector count, comparison with KNN |
+| **E. Naive Bayes** | Gaussian Naive Bayes with confusion matrix, per-class probabilities of URL / spam-keyword / digit flags, Bayes' theorem for P(Spam \| HasURL) and P(Spam \| NoURL) compared with `BernoulliNB` |
+| **F. Evaluation** | Accuracy, precision, recall, F1 and TN/FP/FN/TP for all models, 5-fold stratified cross-validation, bar chart comparison |
+| **G. Report** | Strengths and weaknesses, impact of Naive Bayes assumptions, interpretability trade-offs, business recommendation, final conclusion |
 
 ---
 
@@ -74,6 +79,8 @@ This project builds and compares three families of classifiers and explains thei
 | RBF SVC | 1.0 | 1.0 | 1.0 | 1.0 | 852 | 0 | 0 | 188 |
 | Gaussian Naive Bayes | 1.0 | 1.0 | 1.0 | 1.0 | 852 | 0 | 0 | 188 |
 
+![Model Comparison](Screenshots/model_comparison.png)
+
 ### 5-fold stratified cross-validation (F1)
 
 | Model | Mean F1 | Std |
@@ -86,41 +93,34 @@ This project builds and compares three families of classifiers and explains thei
 
 ### Key findings
 
-- **KNN** is perfect for K = 1 to 15 with every distance metric tested. At K = 17 and 19, recall drops to 0.9947 because a larger K lets legitimate neighbours outvote a few spam messages.
+- **KNN:** perfect for K = 1 to 15 with all three distance metrics. At K = 17 and 19, accuracy drops to 0.999 and recall to 0.9947.
 - **SVM:** the linear SVM uses only 13 of 4,160 training points (0.31%) as support vectors.
-- **Naive Bayes:** the hand-calculated posterior P(Spam | HasURL) = 0.6695 matches the model exactly, so Naive Bayes is Bayes' theorem plus the independence assumption.
-- **Why the scores are perfect:** the classes are almost perfectly separable (no legitimate message contains a special character, every spam message does), so a single feature separates them and accuracy cannot rank the models.
+- **Naive Bayes:** the hand-calculated P(Spam | HasURL) = 0.6695 and P(Spam | NoURL) = 0.0616 match the model output exactly.
+- **Best model for precision and recall:** all models tie at 1.0, so accuracy cannot separate them.
+- **Why the scores are perfect:** the classes are almost perfectly separable (in the correlation matrix, `num_special_chars` has a 0.93 correlation with `spam_label`).
 
----
+### Recommendation (from the notebook, Part G)
 
-## 🏆 Business Recommendation
-
-- **Primary model: Linear SVC.** It matches every other model, predicts quickly, needs no kernel tuning, and its feature weights explain each decision. Its signed distance from the boundary is used as the spam score.
-- **Naive Bayes** is useful for explanation and cross-checking, but not for reporting probabilities (they are overconfident).
-- Set the decision threshold by business cost and send borderline messages to **human review**.
-- This dataset is probably easier than real traffic, so validate on fresh labelled messages before launch and retrain as spam patterns change.
+Use **Linear SVC** as the primary model: it matches the others, predicts quickly, needs no kernel tuning and its feature weights explain decisions. Send borderline messages to human review and validate on fresh labelled data before real-world use.
 
 ---
 
 ## 🚀 Streamlit App
 
-The app loads the saved Linear SVC pipeline (median imputer + StandardScaler + model), so predictions use exactly the same preprocessing as training.
+Live app: **https://messageintelligencesystemsl.streamlit.app/**
 
-- Shows the **spam score** (signed distance from the decision boundary). A positive score is on the spam side.
-- Messages inside the SVM margin (|score| < 1) are flagged as **borderline, send to human review**.
-- A threshold slider lets the user trade off precision against recall.
+The app loads the saved Linear SVC pipeline (median imputer + StandardScaler + model), so predictions use the same preprocessing as training.
+
+- Takes the 12 message features as input.
+- Shows the **Linear SVC spam score** (signed distance from the decision boundary).
+- Shows **Spam**, **Legitimate**, or **Borderline** (inside the SVM margin, |score| < 1, send to human review).
+- A threshold slider changes the spam cut-off.
+- Expanders show the input data and the model's test-set metrics.
 
 ```
 User Input → DataFrame → Saved Pipeline → Median Imputer + StandardScaler
 → Linear SVC → Spam Score → Spam / Legitimate / Review
 ```
-
-### Screenshots
-
-| | |
-|---|---|
-| ![Legitimate message](Screenshots/app_legitimate.png) | ![Spam message](Screenshots/app_spam.png) |
-| ![Model comparison](Screenshots/model_comparison.png) | ![KNN K sweep](Screenshots/knn_k.png) |
 
 ---
 
@@ -128,7 +128,7 @@ User Input → DataFrame → Saved Pipeline → Median Imputer + StandardScaler
 
 ```
 ├── app.py                  # Streamlit app
-├── train_model.py          # Trains and exports the pipelines
+├── train_model.py          # Trains and exports the Linear SVC pipeline
 ├── requirements.txt
 ├── README.md
 ├── Dataset/
@@ -138,9 +138,9 @@ User Input → DataFrame → Saved Pipeline → Median Imputer + StandardScaler
 │   └── metrics.json
 ├── Notebook/
 │   └── Message_Intelligence_System.ipynb
-├── Screenshots/
-└── Theory/
-    └── Theory_Concepts.pdf
+└── Screenshots/
+    ├── correlation_matrix.png
+    └── model_comparison.png
 ```
 
 ---
@@ -148,13 +148,8 @@ User Input → DataFrame → Saved Pipeline → Median Imputer + StandardScaler
 ## ⚙️ How to Run
 
 ```bash
-# 1. Install dependencies
 pip install -r requirements.txt
-
-# 2. Train and export the models
 python train_model.py
-
-# 3. Start the app
 streamlit run app.py
 ```
 
@@ -170,9 +165,8 @@ Python · Pandas · NumPy · Matplotlib · scikit-learn · Streamlit · Jupyter 
 
 ## ⚠️ Limitations
 
-- 100% test scores and one perfectly separating feature mean this dataset is easier than real traffic.
+- Perfect test scores and one dominant feature mean this dataset is easier than real traffic.
 - The app takes numeric message features as input, not raw message text.
-- Spammers can adapt (for example by removing special characters or URLs), so the model needs monitoring and retraining.
 
 ---
 

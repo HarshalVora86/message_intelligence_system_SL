@@ -28,12 +28,6 @@ model = load_model()
 
 st.title("✉️ Message Intelligence System")
 
-st.markdown(
-    "Enter the message details below. The saved pipeline applies the same "
-    "preprocessing used during training and the **Linear SVC** model returns "
-    "a spam score."
-)
-
 with st.form("prediction_form"):
     col1, col2 = st.columns(2)
 
