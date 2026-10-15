@@ -1,0 +1,27 @@
+{
+    "Accuracy": 1.0,
+    "Precision": 1.0,
+    "Recall": 1.0,
+    "F1": 1.0,
+    "TP": 188,
+    "TN": 852,
+    "FP": 0,
+    "FN": 0,
+    "train_rows": 4160,
+    "test_rows": 1040,
+    "features": [
+        "message_length",
+        "word_count",
+        "num_urls",
+        "num_digits",
+        "num_special_chars",
+        "spam_keyword_score",
+        "legit_keyword_score",
+        "sender_activity_score",
+        "sender_account_age_days",
+        "messages_sent_last_24h",
+        "hour_of_day",
+        "day_of_week"
+    ],
+    "target": "spam_label"
+}
